@@ -48,8 +48,7 @@ unsigned char* image_rgb_to_color256(unsigned int dim_x, unsigned int dim_y, uns
         curr_compact = compact(image_buf, i);
         int find = lookup(curr_compact);
 
-        // printf("%d %d\n", i, find);
-        //if not already in hash table
+            //if not already in hash table
         if (find == -1)
         {
             //insert into hash table
@@ -84,7 +83,10 @@ unsigned char* image_rgb_to_color256(unsigned int dim_x, unsigned int dim_y, uns
     }
 
     //verification purposes
-    print_arr(color256_img, PALETTE_MAX*RGB_TUPLE_SIZE + dim_x*dim_y);
+    printf("Color palette: ");
+    print_arr(color256_img, 0, PALETTE_MAX*RGB_TUPLE_SIZE);
+    printf("Color indices: ");
+    print_arr(color256_img, PALETTE_MAX*RGB_TUPLE_SIZE, PALETTE_MAX*RGB_TUPLE_SIZE + dim_x*dim_y);
 
     return color256_img;
 }
@@ -100,7 +102,7 @@ unsigned char* image_color256(unsigned int dim_x, unsigned int dim_y)
 
     //calculate total size of COLOR256 table
     int final_size = PALETTE_MAX*RGB_TUPLE_SIZE + dim_x*dim_y;
-    printf("Final size: %d\n", final_size);
+    // printf("Final size: %d\n", final_size);
 
     //allocate memory for COLOR256 table
     unsigned char* img = malloc(final_size*sizeof(unsigned char));
