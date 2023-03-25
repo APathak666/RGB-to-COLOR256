@@ -28,22 +28,26 @@ void test_func()
     for (int i = 0; i < TABLE_SIZE; i++)
         insert(i, i);
 
-    for (int i = TABLE_SIZE; i < 2*TABLE_SIZE; i++)
-        insert(i, i);
+    // for (int i = TABLE_SIZE; i < 2*TABLE_SIZE; i++)
+    //     insert(i, i);
 
     for (int i = 0; i < TABLE_SIZE; i++)
     {
         print_list(hashtable[i]);
     }
+
+    printf("%d \n", lookup(500));
 }
 
 //utility function to print array
-void print_arr(unsigned char* buf, int size)
+void print_arr(unsigned char* buf, int start_idx, int end_idx)
 {
-    for (int i = 0; i < size; i++)
+    for (int i = start_idx; i < end_idx; i++)
     {
         printf("%d ", buf[i]);
     }
+
+    printf("\n");
 }
 
 //utility function to print linked list
