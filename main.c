@@ -2,13 +2,10 @@
 #include <stdlib.h>
 #include "helper.h"
 #include "hash_table.h"
+#include "inputs.h"
 
 int main()
 {
-    unsigned char image_rgb[] = {255, 0, 0, 0, 255, 0, 0, 0, 255,
-                                0, 0, 255, 0, 255, 0, 255, 0, 0,
-                                0, 255, 0, 255, 0, 0, 0, 0, 255};
-
     // test_func();
     image_rgb_to_color256(3, 3, image_rgb);
 }
@@ -23,11 +20,13 @@ unsigned char* image_rgb_to_color256(unsigned int dim_x, unsigned int dim_y, uns
     }
 
     //check dimensions
-    if (dim_x == 0 || dim_y == 0)
+    if (dim_x == 0 || dim_y == 0) //|| dim_x*dim_y%3 != 0)
     {
         error_handler(4, "incorrect dimensions");
         return NULL;
     }
+
+    int len = 0;
 
     //allocate memory for new image
     unsigned char* color256_img = image_color256(dim_x, dim_y);
@@ -39,7 +38,8 @@ unsigned char* image_rgb_to_color256(unsigned int dim_x, unsigned int dim_y, uns
     }
 
     int in_size = RGB_TUPLE_SIZE*dim_x*dim_y;
-    int color_count = 0, color_index = 0, offset = PALETTE_MAX*RGB_TUPLE_SIZE;
+    int color_count = 0, offset = PALETTE_MAX*RGB_TUPLE_SIZE;
+    int palette_index = 0;
     int curr_compact;
 
     for (int i = 0; i < in_size; i+= 3)
@@ -48,21 +48,23 @@ unsigned char* image_rgb_to_color256(unsigned int dim_x, unsigned int dim_y, uns
         curr_compact = compact(image_buf, i);
         int find = lookup(curr_compact);
 
+        // printf("%d %d\n", i, find);
         //if not already in hash table
         if (find == -1)
         {
             //insert into hash table
-            insert(curr_compact, color_index); 
+            insert(curr_compact, color_count); 
             unpack(curr_compact);   //extract RGB values
 
             //insert new color into palette 
-            color256_img[i] = red;
-            color256_img[i+1] = green;
-            color256_img[i+2] = blue;
+            color256_img[palette_index] = red;
+            color256_img[palette_index+1] = green;
+            color256_img[palette_index+2] = blue;
 
             //store index
-            color256_img[color_index+offset] = color_count;
+            color256_img[(i/3)+offset] = color_count;
             color_count++;
+            palette_index += 3;
         }
 
         //if already in hash table
@@ -70,10 +72,8 @@ unsigned char* image_rgb_to_color256(unsigned int dim_x, unsigned int dim_y, uns
         {
             unpack(curr_compact);
             //store previously occurred index
-            color256_img[color_index+offset] = find;
+            color256_img[(i/3)+offset] = find;
         }
-
-        color_index++;
 
         //check color count is under 256
         if (color_count > 256)
