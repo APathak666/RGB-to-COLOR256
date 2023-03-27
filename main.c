@@ -1,55 +1,62 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "helper.h"
 #include "hash_table.h"
 #include "inputs.h"
 
+//Driver code
 int main()
 {
     // test_func();
-    image_rgb_to_color256(3, 3, image_rgb);
+    int dim_x = 3, dim_y = 3;
+    unsigned char* image_color256 = image_rgb_to_color256(dim_x, dim_y, image_rgb);
+
+    printf("Color palette: ");
+    print_arr(image_color256, 0, PALETTE_MAX*RGB_TUPLE_SIZE);
+    printf("Color indices: ");
+    print_arr(image_color256, PALETTE_MAX*RGB_TUPLE_SIZE, PALETTE_MAX*RGB_TUPLE_SIZE + dim_x*dim_y);
 }
 
+//Convert image from RGB representation to COLOR256 format
 unsigned char* image_rgb_to_color256(unsigned int dim_x, unsigned int dim_y, unsigned char* image_buf)
 {
+    int in_size = RGB_TUPLE_SIZE*dim_x*dim_y;                   //input total size
+    int color_count = 0, offset = PALETTE_MAX*RGB_TUPLE_SIZE;   //offset for color indices
+    int palette_index = 0;                                      //color indices in palette
+    int curr_compact;                                           //stores the compact value of the current RGB pixel
+    int find;                                                   //index of compact in hash table, else -1
+
     //check for NULL buffer
     if (image_buf == NULL)
     {
-        error_handler(6, "NULL image received");
+        error_handler(INP_ERR, INP_MSG);
         return NULL;
     }
 
     //check dimensions
     if (dim_x == 0 || dim_y == 0) //|| dim_x*dim_y%3 != 0)
     {
-        error_handler(4, "incorrect dimensions");
+        error_handler(DIM_ERR, DIM_MSG);
         return NULL;
     }
-
-    int len = 0;
 
     //allocate memory for new image
     unsigned char* color256_img = image_color256(dim_x, dim_y);
 
     if (color256_img == NULL)
     {
-        error_handler(5 , "color");
+        error_handler(BUFF_ERR, BUFF_MSG);
         return NULL;
     }
-
-    int in_size = RGB_TUPLE_SIZE*dim_x*dim_y;
-    int color_count = 0, offset = PALETTE_MAX*RGB_TUPLE_SIZE;
-    int palette_index = 0;
-    int curr_compact;
 
     for (int i = 0; i < in_size; i+= 3)
     {
         //read compact representation of RGB triplet
         curr_compact = compact(image_buf, i);
-        int find = lookup(curr_compact);
+        find = lookup(curr_compact);
 
-            //if not already in hash table
-        if (find == -1)
+        if (find == -1) //if not already in hash table
         {
             //insert into hash table
             insert(curr_compact, color_count); 
@@ -65,59 +72,48 @@ unsigned char* image_rgb_to_color256(unsigned int dim_x, unsigned int dim_y, uns
             color_count++;
             palette_index += 3;
         }
-
-        //if already in hash table
-        else
+        else    //if already in hash table
         {
             unpack(curr_compact);
             //store previously occurred index
             color256_img[(i/3)+offset] = find;
         }
 
-        //check color count is under 256
-        if (color_count > 256)
+        //check color count isn't greater than max palette size
+        if (color_count > PALETTE_MAX)
         {
-            error_handler(2, "Color palette size exceeded");
+            error_handler(PALETTE_ERR, PALETTE_MSG);
             return NULL;
         }
     }
 
-    //verification purposes
-    printf("Color palette: ");
-    print_arr(color256_img, 0, PALETTE_MAX*RGB_TUPLE_SIZE);
-    printf("Color indices: ");
-    print_arr(color256_img, PALETTE_MAX*RGB_TUPLE_SIZE, PALETTE_MAX*RGB_TUPLE_SIZE + dim_x*dim_y);
-
     return color256_img;
-}
+}   //image_rgb_to_color256()
 
+//Initialize COLOR256 format image
 unsigned char* image_color256(unsigned int dim_x, unsigned int dim_y)
 {
+    //calculate total size of COLOR256 table
+    int final_size = PALETTE_MAX*RGB_TUPLE_SIZE + dim_x*dim_y;
+
     //check dimensions
     if (dim_x == 0 || dim_y == 0)
     {
-        error_handler(4, "incorrect dimensions");
+        error_handler(DIM_ERR, DIM_MSG);
         return NULL;
     }
-
-    //calculate total size of COLOR256 table
-    int final_size = PALETTE_MAX*RGB_TUPLE_SIZE + dim_x*dim_y;
-    // printf("Final size: %d\n", final_size);
 
     //allocate memory for COLOR256 table
     unsigned char* img = malloc(final_size*sizeof(unsigned char));
 
     if (img == NULL)
     {
-        error_handler(1, "allocating memory");
+        error_handler(MALLOC_ERR, MALLOC_MSG);
         exit(1);
     }
 
     //initialize all values to zero
-    for (int i = 0; i < final_size; i++)
-    {
-        img[i] = 0;
-    }
+    memset(img, 0, final_size*sizeof(unsigned char));
 
     return img;
-}
+}   //image_color256()
