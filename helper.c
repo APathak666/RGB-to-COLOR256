@@ -4,32 +4,33 @@
 
 int ERRNO = 0;
 
-//set global error number and print error message
+//Set global error number and print error message
 void error_handler(int error, char* str)
 {
     ERRNO = error;
     printf("Error: %s | %d\n", str, ERRNO);
-}
+}   //error_handler()
 
-//function to test other functions
+//Function to test other functions
 void test_func()
 {
-    // unsigned char image_rgb[] = {255, 0, 0, 0, 255, 0, 0, 0, 255,
-    //                             0, 0, 255, 0, 255, 0, 255, 0, 0,
-    //                             0, 255, 0, 255, 0, 0, 0, 0, 255};
+    //TEST COLOR256 IMAGE INIT
+    unsigned char image_rgb[] = {255, 0, 0, 0, 255, 0, 0, 0, 255,
+                                0, 0, 255, 0, 255, 0, 255, 0, 0,
+                                0, 255, 0, 255, 0, 0, 0, 0, 255};
 
-    // unsigned char* new = image_rgb_to_color256(3, 3, image_rgb);
+    unsigned char* new = image_rgb_to_color256(3, 3, image_rgb);
 
-    // print_arr(new, PALETTE_MAX*RGB_TUPLE_SIZE + 9);
-    // printf("%d ", PALETTE_MAX*RGB_TUPLE_SIZE + 9);
+    printf("%d ", PALETTE_MAX*RGB_TUPLE_SIZE + 9);
 
+    //TEST HASH TABLE FUNCTIONS
     init_table();
 
     for (int i = 0; i < TABLE_SIZE; i++)
         insert(i, i);
 
-    // for (int i = TABLE_SIZE; i < 2*TABLE_SIZE; i++)
-    //     insert(i, i);
+    for (int i = TABLE_SIZE; i < 2*TABLE_SIZE; i++)
+        insert(i, i);
 
     for (int i = 0; i < TABLE_SIZE; i++)
     {
@@ -37,9 +38,9 @@ void test_func()
     }
 
     printf("%d \n", lookup(500));
-}
+}   //test_func()
 
-//utility function to print array
+//Utility function to print array
 void print_arr(unsigned char* buf, int start_idx, int end_idx)
 {
     for (int i = start_idx; i < end_idx; i++)
@@ -48,9 +49,9 @@ void print_arr(unsigned char* buf, int start_idx, int end_idx)
     }
 
     printf("\n");
-}
+}   //print_arr()
 
-//utility function to print linked list
+//Utility function to print linked list
 void print_list(node* start)
 {
     node* cursor = start;
@@ -62,13 +63,12 @@ void print_list(node* start)
     }
 
     printf("\n");
-}
+}   //print_list()
 
-//extract RGB values from 9 digit int representation (RRR_GGG_BBB)
+//Extract RGB values from 9 digit int representation (RRR_GGG_BBB)
 void unpack(int compact)
 {
-    blue = compact%1000;
-    green = (compact%1000000 - blue)/1000;
-    red = compact/1000000;
-
-}
+    blue = compact%1000;                    //extract 3 least significant digits
+    green = (compact%1000000 - blue)/1000;  //extract middle 3 digits
+    red = compact/1000000;                  //extract 3 most significant digits
+}   //unpack()
