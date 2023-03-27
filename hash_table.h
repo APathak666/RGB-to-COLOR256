@@ -1,8 +1,8 @@
 #ifndef __HASH_TABLE_H_
 #define __HASH_TABLE_H_
 
-#define TABLE_SIZE 397 //setting hash table size to arbitrary prime
-
+#define TABLE_SIZE 397  //setting hash table size to arbitrary prime
+#define TABLE_INIT 0    //initialize HASH TABLE ENT
 typedef struct node
 {
     int val;
@@ -11,6 +11,7 @@ typedef struct node
 }
 node;
 
+//Hash table to store compact RGB values
 node *hashtable[TABLE_SIZE];
 
 //function prototypes
