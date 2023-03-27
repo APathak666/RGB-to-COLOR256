@@ -1,23 +1,22 @@
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 #include "hash_table.h"
 #include "helper.h"
 
-//initialize all entries in hash table to NULL
+//Initialize all entries in hash table to NULL
 void init_table()
 {
-    for (int i = 0; i < TABLE_SIZE; i++)
-    {
-        hashtable[i] = NULL;
-    }
-}
+    memset(hashtable, 0, TABLE_SIZE*sizeof(node*));
+}   //init_table()
 
+//Insert compact value into hash table and save the index in color palette
 void insert(int key, int idx)
 {
     //ensure hash value doesn't already exist in the table
     if (lookup(key) > -1)
     {
-        error_handler(3, "Value already exists in table");
+        error_handler(INSERT_ERR, INSERT_MSG);
         return;
     }
 
@@ -30,9 +29,9 @@ void insert(int key, int idx)
 
     if (new_node == NULL)
     {
-        error_handler(1, "allocating memory");
+        error_handler(MALLOC_ERR, MALLOC_MSG);
         exit(1);
-    }
+    }   
 
     //initialize new node
     new_node->val = key;
@@ -44,14 +43,14 @@ void insert(int key, int idx)
         hashtable[hash_val] = new_node;
         new_node->next = NULL;
     }
-
     else
     {
         new_node->next = hashtable[hash_val];
         hashtable[hash_val] = new_node;
     }
-}
+}   //insert()
 
+//Lookup hash table for a compact value
 int lookup(int key)
 {
     //hash compact value to find arrray index
@@ -65,7 +64,6 @@ int lookup(int key)
         {
             return cursor->index;
         }
-
         else
         {
             cursor = cursor->next;
@@ -73,9 +71,9 @@ int lookup(int key)
     }
 
     return -1;
-}
+}   //lookup()
 
-//  Represent 3 RGB fields in a single 9 digit int as: RRR_GGG_BBB for ease of hashing and lookup
+//Represent 3 RGB fields in a single 9 digit int as: RRR_GGG_BBB for ease of hashing and lookup
 int compact(unsigned char* image, int index)
 {
     int com = 0;
@@ -88,10 +86,10 @@ int compact(unsigned char* image, int index)
     com += (int) image[index];
 
     return com;
-}
+}   //compact()
 
-//modular hashing
+//Modular hashing
 int hash(int compact)
 {
     return compact%TABLE_SIZE;
-}
+}   //hash()
